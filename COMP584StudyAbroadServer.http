@@ -1,0 +1,6 @@
+@COMP584StudyAbroadServer_HostAddress = http://localhost:5260
+
+GET {{COMP584StudyAbroadServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
