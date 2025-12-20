@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using COMP584StudyAbroadServer.Data;
@@ -18,6 +19,7 @@ public class UniversitiesController : ControllerBase
 
     // GET: api/Universities
     [HttpGet]
+    [AllowAnonymous]   // everyone can browse universities
     public async Task<ActionResult<IEnumerable<University>>> GetUniversities(
         [FromQuery] string? country,
         [FromQuery] string? city,
@@ -27,17 +29,23 @@ public class UniversitiesController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(country))
         {
-            query = query.Where(u => u.Country == country);
+            var term = country.Trim().ToLower();
+            query = query.Where(u => u.Country.ToLower().Contains(term));
         }
 
         if (!string.IsNullOrWhiteSpace(city))
         {
-            query = query.Where(u => u.City == city);
+            var term = city.Trim().ToLower();
+            query = query.Where(u => u.City.ToLower().Contains(term));
         }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            query = query.Where(u => u.Name.Contains(search));
+            var term = search.Trim().ToLower();
+            query = query.Where(u =>
+                u.Name.ToLower().Contains(term) ||
+                u.Country.ToLower().Contains(term) ||
+                u.City.ToLower().Contains(term));
         }
 
         return await query.ToListAsync();
@@ -45,6 +53,7 @@ public class UniversitiesController : ControllerBase
 
     // GET: api/Universities/5
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult<University>> GetUniversity(int id)
     {
         var university = await _context.Universities.FindAsync(id);
@@ -57,8 +66,9 @@ public class UniversitiesController : ControllerBase
         return university;
     }
 
-    // POST: api/Universities
+    // POST: api/Universities  (ADMIN ONLY)
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<University>> PostUniversity(University university)
     {
         _context.Universities.Add(university);
@@ -67,8 +77,9 @@ public class UniversitiesController : ControllerBase
         return CreatedAtAction(nameof(GetUniversity), new { id = university.Id }, university);
     }
 
-    // PUT: api/Universities/5
+    // PUT: api/Universities/5  (ADMIN ONLY)
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PutUniversity(int id, University university)
     {
         if (id != university.Id)
@@ -95,8 +106,9 @@ public class UniversitiesController : ControllerBase
         return NoContent();
     }
 
-    // DELETE: api/Universities/5
+    // DELETE: api/Universities/5  (ADMIN ONLY)
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUniversity(int id)
     {
         var university = await _context.Universities.FindAsync(id);

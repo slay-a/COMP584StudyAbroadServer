@@ -1,61 +1,63 @@
-using Microsoft.EntityFrameworkCore;
 using COMP584StudyAbroadServer.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
-namespace COMP584StudyAbroadServer.Data;
-
-public class StudyAbroadContext : DbContext
+namespace COMP584StudyAbroadServer.Data
 {
-    public StudyAbroadContext(DbContextOptions<StudyAbroadContext> options)
-        : base(options)
+    public class StudyAbroadContext : IdentityDbContext<ApplicationUser>
     {
-    }
-
-    public DbSet<University> Universities { get; set; } = null!;
-    public DbSet<StudyProgram> StudyPrograms { get; set; } = null!;
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<University>(entity =>
+        public StudyAbroadContext(DbContextOptions<StudyAbroadContext> options)
+            : base(options)
         {
-            entity.Property(u => u.Name)
-                .IsRequired()
-                .HasMaxLength(200);
+        }
 
-            entity.Property(u => u.Country)
-                .IsRequired()
-                .HasMaxLength(100);
+        public DbSet<University> Universities { get; set; } = null!;
+        public DbSet<StudyProgram> StudyPrograms { get; set; } = null!;
 
-            entity.Property(u => u.City)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            entity.Property(u => u.Type)
-                .HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<StudyProgram>(entity =>
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            entity.Property(p => p.Name)
-                .IsRequired()
-                .HasMaxLength(200);
+            base.OnModelCreating(modelBuilder); // keeps Identity tables
 
-            entity.Property(p => p.DegreeLevel)
-                .IsRequired()
-                .HasMaxLength(50);
+            modelBuilder.Entity<University>(entity =>
+            {
+                entity.Property(u => u.Name)
+                    .IsRequired()
+                    .HasMaxLength(200);
 
-            entity.Property(p => p.Language)
-                .IsRequired()
-                .HasMaxLength(50);
+                entity.Property(u => u.Country)
+                    .IsRequired()
+                    .HasMaxLength(100);
 
-            entity.Property(p => p.TuitionPerYear)
-                .HasColumnType("decimal(18,2)");
+                entity.Property(u => u.City)
+                    .IsRequired()
+                    .HasMaxLength(100);
 
-            entity.HasOne(p => p.University)
-                .WithMany(u => u.Programs)
-                .HasForeignKey(p => p.UniversityId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
+                entity.Property(u => u.Type)
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<StudyProgram>(entity =>
+            {
+                entity.Property(p => p.Name)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(p => p.DegreeLevel)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(p => p.Language)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(p => p.TuitionPerYear)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.HasOne(p => p.University)
+                    .WithMany(u => u.Programs)
+                    .HasForeignKey(p => p.UniversityId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+        }
     }
 }

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("COMP584StudyAbroadServer")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8efe46915c917308a9d3e3c7da70baac84cb89ef")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+138c8c19d4b02faf4368ada37d6e3d8156fcb8ac")]
 [assembly: System.Reflection.AssemblyProductAttribute("COMP584StudyAbroadServer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("COMP584StudyAbroadServer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

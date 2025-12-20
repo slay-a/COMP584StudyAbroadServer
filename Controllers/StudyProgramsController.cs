@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using COMP584StudyAbroadServer.Data;
@@ -5,8 +6,8 @@ using COMP584StudyAbroadServer.Models;
 
 namespace COMP584StudyAbroadServer.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
 public class StudyProgramsController : ControllerBase
 {
     private readonly StudyAbroadContext _context;
@@ -16,35 +17,41 @@ public class StudyProgramsController : ControllerBase
         _context = context;
     }
 
-    // GET: api/StudyPrograms
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<StudyProgram>>> GetStudyPrograms(
-        [FromQuery] int? universityId,
-        [FromQuery] string? degreeLevel,
-        [FromQuery] string? language)
+  
+[HttpGet]
+[AllowAnonymous]
+public async Task<ActionResult<IEnumerable<StudyProgram>>> GetStudyPrograms(
+    [FromQuery] int? universityId,
+    [FromQuery] string? degreeLevel,
+    [FromQuery] string? language)
+{
+    var query = _context.StudyPrograms.AsQueryable();
+
+    if (universityId.HasValue)
     {
-        var query = _context.StudyPrograms.AsQueryable();
-
-        if (universityId.HasValue)
-        {
-            query = query.Where(p => p.UniversityId == universityId.Value);
-        }
-
-        if (!string.IsNullOrWhiteSpace(degreeLevel))
-        {
-            query = query.Where(p => p.DegreeLevel == degreeLevel);
-        }
-
-        if (!string.IsNullOrWhiteSpace(language))
-        {
-            query = query.Where(p => p.Language == language);
-        }
-
-        return await query.ToListAsync();
+        query = query.Where(p => p.UniversityId == universityId.Value);
     }
+
+    if (!string.IsNullOrWhiteSpace(degreeLevel))
+    {
+        var term = degreeLevel.Trim().ToLower();
+        query = query.Where(p => p.DegreeLevel.ToLower().Contains(term));
+    }
+
+    if (!string.IsNullOrWhiteSpace(language))
+    {
+        var term = language.Trim().ToLower();
+        query = query.Where(p => p.Language.ToLower().Contains(term));
+    }
+
+    return await query.ToListAsync();
+}
+
+
 
     // GET: api/StudyPrograms/5
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult<StudyProgram>> GetStudyProgram(int id)
     {
         var program = await _context.StudyPrograms.FindAsync(id);
@@ -57,8 +64,9 @@ public class StudyProgramsController : ControllerBase
         return program;
     }
 
-    // POST: api/StudyPrograms
+    // POST: api/StudyPrograms   (ADMIN ONLY)
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<StudyProgram>> PostStudyProgram(StudyProgram program)
     {
         // optional: validate that the university exists
@@ -74,8 +82,9 @@ public class StudyProgramsController : ControllerBase
         return CreatedAtAction(nameof(GetStudyProgram), new { id = program.Id }, program);
     }
 
-    // PUT: api/StudyPrograms/5
+    // PUT: api/StudyPrograms/5   (ADMIN ONLY)
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PutStudyProgram(int id, StudyProgram program)
     {
         if (id != program.Id)
@@ -102,8 +111,9 @@ public class StudyProgramsController : ControllerBase
         return NoContent();
     }
 
-    // DELETE: api/StudyPrograms/5
+    // DELETE: api/StudyPrograms/5   (ADMIN ONLY)
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteStudyProgram(int id)
     {
         var program = await _context.StudyPrograms.FindAsync(id);

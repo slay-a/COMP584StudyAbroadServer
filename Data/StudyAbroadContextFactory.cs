@@ -9,7 +9,6 @@ public class StudyAbroadContextFactory : IDesignTimeDbContextFactory<StudyAbroad
     {
         var optionsBuilder = new DbContextOptionsBuilder<StudyAbroadContext>();
 
-        // same connection string we’ll use in appsettings.json
         var connectionString =
             "Server=(localdb)\\mssqllocaldb;Database=StudyAbroadDb;Trusted_Connection=True;MultipleActiveResultSets=true";
 
